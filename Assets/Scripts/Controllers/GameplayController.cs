@@ -14,7 +14,7 @@ namespace CookingPrototype.Controllers {
 		public GameObject TapBlock   = null;
 		public WinWindow  WinWindow  = null;
 		public LoseWindow LoseWindow = null;
-
+		[SerializeField] private StartWindow _startWindow;
 
 		int _ordersTarget = 0;
 
@@ -82,7 +82,11 @@ namespace CookingPrototype.Controllers {
 			CheckGameFinish();
 			return true;
 		}
-
+		private void Start() {
+			Time.timeScale = 0f;
+			CustomersController.Instance.Init();
+			_startWindow.Show(); 
+		}
 		public void Restart() {
 			Init();
 			CustomersController.Instance.Init();

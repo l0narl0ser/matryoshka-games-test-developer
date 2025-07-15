@@ -1,25 +1,20 @@
 using UnityEngine;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using Random = UnityEngine.Random;
-
 using CookingPrototype.Kitchen;
 
 namespace CookingPrototype.Controllers {
 	public class CustomersController : MonoBehaviour {
-
 		public static CustomersController Instance { get; private set; }
 
-		public int                 CustomersTargetNumber = 15;
-		public float               CustomerWaitTime      = 18f;
-		public float               CustomerSpawnTime     = 3f;
-		public List<CustomerPlace> CustomerPlaces        = null;
+		public int CustomersTargetNumber = 15;
+		public float CustomerWaitTime = 18f;
+		public float CustomerSpawnTime = 3f;
+		public List<CustomerPlace> CustomerPlaces = null;
 
-		[HideInInspector]
-		public int TotalCustomersGenerated { get; private set; } = 0;
+		[HideInInspector] public int TotalCustomersGenerated { get; private set; } = 0;
 
 		public event Action TotalCustomersGeneratedChanged;
 
@@ -42,6 +37,7 @@ namespace CookingPrototype.Controllers {
 			if ( Instance != null ) {
 				Debug.LogError("Another instance of CustomersController already exists!");
 			}
+
 			Instance = this;
 		}
 
@@ -84,7 +80,7 @@ namespace CookingPrototype.Controllers {
 
 		Customer GenerateCustomer() {
 			var customerGo = Instantiate(Resources.Load<GameObject>(CUSTOMER_PREFABS_PATH));
-			var customer   = customerGo.GetComponent<Customer>();
+			var customer = customerGo.GetComponent<Customer>();
 
 			var orders = _orderSets.Pop();
 			customer.Init(orders);
@@ -106,15 +102,17 @@ namespace CookingPrototype.Controllers {
 				for ( var j = 0; j < ordersNum; j++ ) {
 					orders.Add(GenerateRandomOrder());
 				}
+
 				_orderSets.Push(orders);
 				totalOrders += ordersNum;
 			}
+
 			CustomerPlaces.ForEach(x => x.Free());
 			_timer = 0f;
 
 			TotalCustomersGenerated = 0;
 			TotalCustomersGeneratedChanged?.Invoke();
-			 
+
 			GameplayController.Instance.OrdersTarget = totalOrders - 2;
 		}
 
@@ -127,6 +125,7 @@ namespace CookingPrototype.Controllers {
 			if ( place == null ) {
 				return;
 			}
+
 			place.Free();
 			GameplayController.Instance.CheckGameFinish();
 		}
@@ -139,7 +138,34 @@ namespace CookingPrototype.Controllers {
 		/// <param name="order">Заказ, который пытаемся отдать</param>
 		/// <returns>Флаг - результат, удалось ли успешно отдать заказ</returns>
 		public bool ServeOrder(Order order) {
-			throw  new NotImplementedException("ServeOrder: this feature is not implemented.");
+			var candidates = GetCandidates(order);
+
+			if ( candidates.Count == 0 )
+				return false;
+
+			Customer selectedCustomer = candidates.OrderBy(candidate => candidate.WaitTime).First();
+
+			if ( !selectedCustomer.ServeOrder(order) )
+				return false;
+
+			if ( selectedCustomer.IsComplete )
+				FreeCustomer(selectedCustomer);
+
+			return true;
+		}
+
+		private List<Customer> GetCandidates(Order order) {
+			List<Customer> candidates = CustomerPlaces
+				.Where(candidate => IsCorrectCandidate(candidate, order))
+				.Select(candidate => candidate.CurCustomer)
+				.ToList();
+			return candidates;
+		}
+
+		private bool IsCorrectCandidate(CustomerPlace place, Order order) {
+			return !place.IsFree &&
+			       place.CurCustomer != null &&
+			       place.CurCustomer.OrderPlaces.Any(orderPlace => orderPlace.CurOrder == order);
 		}
 	}
 }

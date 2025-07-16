@@ -7716,7 +7716,7 @@ MonoBehaviour:
   TapBlock: {fileID: 2091358853}
   WinWindow: {fileID: 1556102842}
   LoseWindow: {fileID: 1872986065}
-  _startWindow: {fileID: 0}
+  _startWindow: {fileID: 1841691038}
 --- !u!4 &869417864
 Transform:
   m_ObjectHideFlags: 0
@@ -16169,7 +16169,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playButton: {fileID: 392626767}
-  _closeButton: {fileID: 1192038881}
   _goalFoodCount: {fileID: 1615800194}
 --- !u!1 &1844431133
 GameObject:

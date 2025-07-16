@@ -1,18 +1,15 @@
 using System;
-
 using UnityEngine;
-
 using CookingPrototype.Kitchen;
 using CookingPrototype.UI;
-
 using JetBrains.Annotations;
 
 namespace CookingPrototype.Controllers {
 	public sealed class GameplayController : MonoBehaviour {
 		public static GameplayController Instance { get; private set; }
 
-		public GameObject TapBlock   = null;
-		public WinWindow  WinWindow  = null;
+		public GameObject TapBlock = null;
+		public WinWindow WinWindow = null;
 		public LoseWindow LoseWindow = null;
 		[SerializeField] private StartWindow _startWindow;
 
@@ -26,7 +23,7 @@ namespace CookingPrototype.Controllers {
 			}
 		}
 
-		public int        TotalOrdersServed { get; private set; } = 0;
+		public int TotalOrdersServed { get; private set; } = 0;
 
 		public event Action TotalOrdersServedChanged;
 
@@ -34,6 +31,7 @@ namespace CookingPrototype.Controllers {
 			if ( Instance != null ) {
 				Debug.LogError("Another instance of GameplayController already exists");
 			}
+
 			Instance = this;
 		}
 
@@ -60,7 +58,8 @@ namespace CookingPrototype.Controllers {
 			TapBlock?.SetActive(true);
 			if ( win ) {
 				WinWindow.Show();
-			} else {
+			}
+			else {
 				LoseWindow.Show();
 			}
 		}
@@ -82,11 +81,14 @@ namespace CookingPrototype.Controllers {
 			CheckGameFinish();
 			return true;
 		}
+
 		private void Start() {
 			Time.timeScale = 0f;
 			CustomersController.Instance.Init();
-			_startWindow.Show(); 
+			TapBlock?.SetActive(true);
+			_startWindow.Show();
 		}
+
 		public void Restart() {
 			Init();
 			CustomersController.Instance.Init();
